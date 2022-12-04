@@ -1,4 +1,4 @@
-f = open("day1-input.txt", "r")
+f = open("day1/day1-input.txt", "r")
 data = f.read()
 f.close()
 
@@ -14,7 +14,7 @@ print(max(sums))
 sum = 0
 for i in range(3):
     sum += max(sums)
-    print(max(sums))
+    # print(max(sums))
     sums.pop(sums.index(max(sums)))
     
 print(sum)
