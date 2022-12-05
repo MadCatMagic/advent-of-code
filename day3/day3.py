@@ -1,4 +1,4 @@
-def fread():
+def fopen():
     with open("day3/day3-input.txt", "r") as f:
         data = f.read().split("\n")
         return [(a[:len(a) // 2], a[len(a) // 2:]) for a in data]
@@ -16,7 +16,7 @@ def similar(a, b):
 
 # part 1
 priority = {c: i + 1 for i, c in enumerate("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")}
-data = fread()
+data = fopen()
 print(sum([priority[similar(a, b)] for a, b in data]))
 
 # part 2
