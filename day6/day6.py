@@ -6,7 +6,7 @@ def fopen():
 
 def sequence(data, k):
     for i in range(k - 1, len(data)):
-        d = {c: 0 for c in (data[i-k+1:i+1])}
+        d = {c for c in (data[i-k+1:i+1])}
         if len(d) == k:
             return i + 1
 # part 1
