@@ -11,11 +11,16 @@ def times(time, dist):
 
 with open("2023/day6input.txt", "r") as f:
     data = f.read().split("\n")
+
+    # part 1
     arr = [[int(p) if i > 0 else p for i, p in enumerate(k.split())] for k in data]
     time = arr[0][1:]
     dist = arr[1][1:]
     s1 = times(time, dist)
+
+    # part 2
     time, dist = [int(k[9:].replace(" ", "")) for k in data]
     s2 = times([time], [dist])
+    
     print(s1, s2)
             
