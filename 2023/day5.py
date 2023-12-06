@@ -9,7 +9,7 @@ def dostuff(seeds):
         s1 = min(seed, s1)
     return s1
 
-def domorestuff(a, b, reverse): # something wrong when reverse is False
+def domorestuff(a, b, reverse):
     if reverse:
         newera = []
         for ra in a:
@@ -43,11 +43,13 @@ def domorestuff(a, b, reverse): # something wrong when reverse is False
     
 def correctmap(m):
     s = 0
+    toadd = []
     for r in m:
         if r[1] - s > 0:
-            m.append((s, s, r[1] - s))
+            toadd.append([s, s, r[1] - s])
         s = r[1] + r[2]
-    return m
+    toadd.append([s, s, 2 ** 32])
+    return m + toadd
 
 with open("2023/day5input.txt", "r") as f:
     data = f.read().split("\n\n")
@@ -59,7 +61,7 @@ with open("2023/day5input.txt", "r") as f:
 
     # part 2
     # destination range, source range, length
-    seeds = [(seeds[i], seeds[i + 1]) for i in range(len(seeds) // 2)]
+    seeds = [(seeds[i], seeds[i + 1]) for i in range(0, len(seeds), 2)]
     #maps = [
     #    [[0, 3, 3], [3, 0, 3]], 
     #    [[0, 2, 4], [4, 0, 2]], 
@@ -72,7 +74,7 @@ with open("2023/day5input.txt", "r") as f:
     #]
     # ././.../.. -> .../././..                correct
     #               .../././.. -> ./../..../. correct
-    maps = [[[0, 3, 4], [5, 9, 2]]]
+    #maps = maps[:3]
     maps = [sorted(m, key=lambda x:x[1]) for m in maps]
     maps = [correctmap(m) for m in maps]
     print(maps)
@@ -87,14 +89,14 @@ with open("2023/day5input.txt", "r") as f:
             else:
                 newera = domorestuff(a, maps[i + 1], False)
                 newera2 = domorestuff(newera, maps[i - 1], True)
-                newmaps.append(newera)
+                newmaps.append(newera2)
         print([len(newmaps[i]) for i in range(len(newmaps))])
         maps = newmaps
     print(maps)
     s2 = 2 ** 31
     for i, best in enumerate(maps[-1]):
         curr = best
-        for map in maps[:-1]:
+        for map in reversed(maps[:-1]):
             for range in map:
                 if range[0] == curr[1]:
                     curr = range
