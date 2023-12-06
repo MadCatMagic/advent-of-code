@@ -77,8 +77,8 @@ with open("2023/day5input.txt", "r") as f:
     #maps = maps[:3]
     maps = [sorted(m, key=lambda x:x[1]) for m in maps]
     maps = [correctmap(m) for m in maps]
-    print(maps)
-    print([len(maps[i]) for i in range(len(maps))])
+    #print(maps)
+    #print([len(maps[i]) for i in range(len(maps))])
     for _ in range(len(maps) - 1):
         newmaps = []
         for i, a in enumerate(maps):
@@ -90,9 +90,9 @@ with open("2023/day5input.txt", "r") as f:
                 newera = domorestuff(a, maps[i + 1], False)
                 newera2 = domorestuff(newera, maps[i - 1], True)
                 newmaps.append(newera2)
-        print([len(newmaps[i]) for i in range(len(newmaps))])
+        #print([len(newmaps[i]) for i in range(len(newmaps))])
         maps = newmaps
-    print(maps)
+    #print(maps)
     s2 = 2 ** 31
     for i, best in enumerate(maps[-1]):
         curr = best
