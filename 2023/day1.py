@@ -2,7 +2,7 @@
 nums = "0123456789"
 nums2 = [k for k in nums] + ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 nums2r = [k[::-1] for k in nums2]
-with open("d1.txt", "r") as f:
+with open("2023/day1-input.txt", "r") as f:
     data = f.read().split("\n")
     # part 1
     s = 0

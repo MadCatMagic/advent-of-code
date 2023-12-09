@@ -51,7 +51,7 @@ def correctmap(m):
     toadd.append([s, s, 2 ** 32])
     return m + toadd
 
-with open("2023/day5input.txt", "r") as f:
+with open("2023/day5-input.txt", "r") as f:
     data = f.read().split("\n\n")
     seeds = [int(i) for i in data[0].split(" ")[1:]]
     maps = [[[int(v) for v in l.split(" ")] for l in k.split("\n")[1:]] for k in data[1:]]

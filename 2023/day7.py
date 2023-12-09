@@ -1,5 +1,3 @@
-f = """"""
-
 ordering = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 ordering2 = ["J", "1", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
 def value(h):
@@ -58,7 +56,7 @@ def value2(h):
     return val
 
 import pprint
-with open("2023/day7input.txt", "r") as f:
+with open("2023/day7-input.txt", "r") as f:
     data = [k.split() for k in f.read().split("\n")]
 
     # part 1

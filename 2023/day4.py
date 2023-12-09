@@ -2,7 +2,7 @@
 def interpAsNums(string):
     return [int(string[i + 1] + string[i + 2]) for i in range(0, len(string) - 1, 3)]
 
-with open("2023/day4input.txt", "r") as f:
+with open("2023/day4-input.txt", "r") as f:
     data = [line.split(":") for line in f.read().split("\n")]
     id = [int(k[0][5:]) for k in data]
     pair = [[interpAsNums(k) for k in l[1].split("|")] for l in data]

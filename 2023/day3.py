@@ -1,5 +1,5 @@
 
-with open("2023/day3input.txt") as f:
+with open("2023/day3-input.txt") as f:
     data = [k + "." for k in f.read().split("\n")]
 
     # part 1

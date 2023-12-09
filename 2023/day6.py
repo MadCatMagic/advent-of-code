@@ -9,7 +9,7 @@ def times(time, dist):
         s *= k
     return s
 
-with open("2023/day6input.txt", "r") as f:
+with open("2023/day6-input.txt", "r") as f:
     data = f.read().split("\n")
 
     # part 1

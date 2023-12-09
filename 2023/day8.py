@@ -10,7 +10,7 @@ def run(node, network, cond):
         index %= len(instr)
     return s1
 
-with open("2023/day8input.txt", "r") as f:
+with open("2023/day8-input.txt", "r") as f:
     data = f.read().split("\n\n")
     instr = data[0]
     nodes = [node.split(" = ") for node in data[1].split("\n")]

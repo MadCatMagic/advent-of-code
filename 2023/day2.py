@@ -1,5 +1,5 @@
 
-with open("2023/day2input.txt", "r") as f:
+with open("2023/day2-input.txt", "r") as f:
     data = f.read().split("\n")
     s1 = 0
     s2 = 0
