@@ -1,11 +1,11 @@
 from typing import List, Any
 
 def pprintMatrix(matrix: List[List[Any]], spaces: int) -> None:
-    _s = [[str(e) for e in row] for row in matrix]
-    _lens = [max(map(len, col)) for col in zip(*_s)]
-    _fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in _lens)
-    _table = [_fmt.format(*row) for row in _s]
-    print('\n'.join(_table))
+    s = [[str(e) for e in row] for row in matrix]
+    lens = [max(map(len, col)) for col in zip(*s)]
+    fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
+    table = [fmt.format(*row) for row in s]
+    print('\n'.join(table))
     
 class v2:
     def __init__(self, x = 0, y = 0):
