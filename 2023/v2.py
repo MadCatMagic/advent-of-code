@@ -6,6 +6,19 @@ def pprintMatrix(matrix: List[List[Any]], spaces: int) -> None:
     fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
     table = [fmt.format(*row) for row in s]
     print('\n'.join(table))
+
+def transposeMatrix(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[] for _ in range(len(arr[0]))]
+    for l in arr:
+        for j, c in enumerate(l):
+            k[j].append(c)
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
     
 class v2:
     def __init__(self, x = 0, y = 0):
