@@ -1,6 +1,6 @@
 from typing import List, Any
 
-def pprintMatrix(matrix: List[List[Any]], spaces: int) -> None:
+def pprintMatrix(matrix: List[List[Any]], spaces: int = 0) -> None:
     s = [[str(e) for e in row] for row in matrix]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
@@ -16,6 +16,16 @@ def transposeMatrix(arr):
     for l in arr:
         for j, c in enumerate(l):
             k[j].append(c)
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
+
+def rotateMatrixCW(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[arr[-j-1][i] for j in range(len(arr))] for i in range(len(arr[0]))]
     if type(arr[0]) == str:
         return ["".join(l) for l in k]
     return k
