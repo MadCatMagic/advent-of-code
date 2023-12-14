@@ -29,6 +29,16 @@ def rotateMatrixCW(arr):
     if type(arr[0]) == str:
         return ["".join(l) for l in k]
     return k
+
+def rotateMatrixCCW(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[arr[j][-i-1] for j in range(len(arr))] for i in range(len(arr[0]))]
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
     
 class v2:
     def __init__(self, x = 0, y = 0):
