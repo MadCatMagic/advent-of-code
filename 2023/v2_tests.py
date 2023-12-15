@@ -93,13 +93,6 @@ class TestCase:
         except AssertionError:
             self._assertions.append(self.outputElement(expectFail, False, message))
             return False
-    
-    def fixture(f):
-        def wrapper(self):
-            print(f)
-            print(self)
-            f(self)
-        return wrapper
 
     def _runTests(self):
         a = dir(self)
@@ -171,7 +164,6 @@ def run_tests(showDeliberateFailureAssertions: bool = False):
             print(obj)
 
 class TestTests(TestCase):
-    @TestCase.fixture
     def test_expect_to_pass(self):
         # should all pass
         self.assert_equal(1, 1)
