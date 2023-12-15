@@ -93,8 +93,15 @@ class TestCase:
         except AssertionError:
             self._assertions.append(self.outputElement(expectFail, False, message))
             return False
+    
+    def fixture(f):
+        def wrapper(self):
+            print(f)
+            print(self)
+            f(self)
+        return wrapper
 
-    def RunTests(self):
+    def _runTests(self):
         a = dir(self)
 
         s = None
@@ -154,18 +161,17 @@ class TestCase:
         if errors > 0: s += f"Errors: {bcolors.WARNING}{errors}{bcolors.ENDC}\n"
         return s
 
-    
-
 def run_tests(showDeliberateFailureAssertions: bool = False):
     for name, el in globals().items():
         if type(el) == type(TestCase) and el != TestCase and issubclass(el, TestCase):
             print(f"Running tests for '{name}':")
             obj = el()
-            obj.RunTests()
+            obj._runTests()
             obj._showDeliberateFailureAssertions = showDeliberateFailureAssertions
             print(obj)
 
 class TestTests(TestCase):
+    @TestCase.fixture
     def test_expect_to_pass(self):
         # should all pass
         self.assert_equal(1, 1)
