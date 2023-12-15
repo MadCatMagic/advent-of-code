@@ -1,5 +1,6 @@
 from v2 import *
 from traceback import format_exc
+from typing import Callable
 
 class bcolors:
     HEADER = '\033[95m'
@@ -16,18 +17,19 @@ class bcolors:
 class TestCase:
 
     class outputElement:
-        def __init__(self, success: bool, failureMessage: str = "", raisedError = False):
+        def __init__(self, shouldHaveFailed: bool, success: bool, failureMessage: str = "", raisedError = False):
+            self.shouldHaveFailed = shouldHaveFailed
             self.success = success
             self.raisedError = raisedError
             self.message = failureMessage
 
         def __str__(self):
             if self.success:
-                return bcolors.OKGREEN + "." + bcolors.ENDC
+                return (bcolors.FAIL if self.shouldHaveFailed else bcolors.OKGREEN) + "." + bcolors.ENDC
             elif self.raisedError:
                 return bcolors.FAIL + "?" + bcolors.ENDC
             else:
-                return bcolors.FAIL + "#" + bcolors.ENDC
+                return (bcolors.OKGREEN if self.shouldHaveFailed else bcolors.FAIL) + "#" + bcolors.ENDC
             
     class indentElement:
         def __init__(self, header = None):
@@ -41,37 +43,55 @@ class TestCase:
     class endIndentation: pass
 
     def __init__(self):
-        self.assertions = []
+        self._assertions = []
+        self._expectingFailures = 0
+
+    def expectFailure(self, num: int = 1):
+        self._expectingFailures += num
 
     def assert_equal(self, a, b, message: str = "") -> bool:
         if message == "":
-            message = f"assertion failed: '{a!r}' != {b!r}"
+            message = f"assertion failed: {a!r} != {b!r}"
         return self._assert(lambda: a == b, message)
     
     def assert_nequal(self, a, b, message: str = "") -> bool:
         if message == "":
-            message = f"assertion failed: '{a!r}' == {b!r}"
+            message = f"assertion failed: {a!r} == {b!r}"
         return self._assert(lambda: a != b, message)
     
     # tests for an absolute or relative error of [tolerance]
     def assert_equal_approx(self, a, b, tolerance = 1e-8, message: str = "") -> bool:
         if message == "":
-            message = f"assertion failed: '{a!r}' !~= {b!r}"
+            message = f"assertion failed: {a!r} !~= {b!r}"
         return self._assert(lambda: abs(a - b) < tolerance or abs((a - b) / b) < tolerance, message)
         
     def assert_true(self, v, message: str = "") -> bool:
         if message == "":
-            message = f"assertion failed: '{v!r}' is not True"
+            message = f"assertion failed: {v!r} is not True"
         return self._assert(lambda: v == True, message)
+    
+    def assert_expect_error(self, func: Callable, exception: type = Exception, message: str = "") -> bool:
+        if message == "":
+            message = f"assertion failed: {func!r} did not raise the error {exception.__name__}"
+        def funct():
+            try:
+                func()
+            except Exception as e:
+                return type(e).__name__ == exception.__name__ or issubclass(type(e), exception)
+            return False
+        return self._assert(funct, message)
     
     # each individual call is counted as a 'test', but is within the test it is called from
     def _assert(self, function, message):
+        expectFail = self._expectingFailures > 0
+        if expectFail:
+            self._expectingFailures -= 1
         try:
             assert function()
-            self.assertions.append(self.outputElement(True))
+            self._assertions.append(self.outputElement(expectFail, True))
             return True
         except AssertionError:
-            self.assertions.append(self.outputElement(False, message))
+            self._assertions.append(self.outputElement(expectFail, False, message))
             return False
 
     def RunTests(self):
@@ -91,23 +111,24 @@ class TestCase:
                 continue
 
             if callable(getattr(self, name)):
-                self.assertions.append(self.indentElement(name[5:]))
+                self._assertions.append(self.indentElement(name[5:]))
                 try:
                     if s != None:
                         s()
                     getattr(self, name)()
                 except:
-                    self.assertions.append(self.outputElement(False, f"Error while running test '{name[5:]}':\n{format_exc()[:-1]}", True))
-                self.assertions.append(self.endIndentation())
+                    self._assertions.append(self.outputElement(False, False, f"Error while running test '{name[5:]}':\n{format_exc()[:-1]}", True))
+                self._assertions.append(self.endIndentation())
 
     def __str__(self):
         s = ""
         indents = 1
         successes = 0
         failures = 0
+        deliberateFailures = 0
         errors = 0
         start = -1
-        for i, k in enumerate(self.assertions):
+        for i, k in enumerate(self._assertions):
             if type(k) == self.indentElement:
                 start = i
                 indents += 1
@@ -116,27 +137,32 @@ class TestCase:
             elif type(k) == self.endIndentation:
                 s += "\n"
                 for j in range(start + 1, i):
-                    if not self.assertions[j].success:
-                        s += f"{'  ' * indents}{self.assertions[j].message}\n"
+                    if not self._assertions[j].success:
+                        if self._showDeliberateFailureAssertions and self._assertions[j].shouldHaveFailed or not self._assertions[j].shouldHaveFailed:
+                            s += f"{'  ' * indents}{self._assertions[j].message}\n"
                 indents -= 1
             else:
                 s += f"{k!s}"
-                if k.success: successes += 1
+                if k.success and not k.shouldHaveFailed: successes += 1
                 elif k.raisedError: errors += 1
+                elif not k.success and k.shouldHaveFailed: deliberateFailures += 1
                 else: failures += 1
-        s += f"\nSuccesses: {bcolors.OKGREEN}{successes}{bcolors.ENDC}\n"
-        if failures > 0: s += f"Failures: {bcolors.FAIL}{failures}{bcolors.ENDC}\n"
+        s += f"\nSuccessful tests: {bcolors.OKGREEN}{successes + deliberateFailures}{bcolors.ENDC}\n"
+        if failures > 0: s += f"Failures: {bcolors.FAIL}{failures}{bcolors.ENDC}"
+        if deliberateFailures > 0: s += f" (deliberate failures: {bcolors.OKGREEN}{deliberateFailures}{bcolors.ENDC})"
+        if failures > 0 or deliberateFailures > 0: s += "\n"
         if errors > 0: s += f"Errors: {bcolors.WARNING}{errors}{bcolors.ENDC}\n"
         return s
 
     
 
-def run_tests():
+def run_tests(showDeliberateFailureAssertions: bool = False):
     for name, el in globals().items():
         if type(el) == type(TestCase) and el != TestCase and issubclass(el, TestCase):
             print(f"Running tests for '{name}':")
             obj = el()
             obj.RunTests()
+            obj._showDeliberateFailureAssertions = showDeliberateFailureAssertions
             print(obj)
 
 class TestTests(TestCase):
@@ -157,8 +183,11 @@ class TestTests(TestCase):
         self.assert_equal_approx(100000.0003, 100000)
         self.assert_equal_approx(0, 3e-10)
 
+        self.assert_expect_error(lambda: 1 / 0, ZeroDivisionError)
+        self.assert_expect_error(len)
+
     def test_expect_to_fail(self):
-        #self.expectFailure(11)
+        self.expectFailure(13)
         # should all fail
         self.assert_equal(1, 2)
         self.assert_equal(False, 1)
@@ -175,6 +204,8 @@ class TestTests(TestCase):
         self.assert_equal_approx(5, 10)
         self.assert_equal_approx(200, -200)
 
+        self.assert_expect_error(lambda: 1 + 1)
+        self.assert_expect_error(lambda: 1 / 0, IndexError)
 
 if __name__ == "__main__":
     run_tests()
