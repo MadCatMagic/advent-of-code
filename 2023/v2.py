@@ -1,11 +1,15 @@
-from typing import List, Any
+from typing import List, Any, Callable, Union
+numeric = (int, float)
 
-def pprintMatrix(matrix: List[List[Any]], spaces: int = 0) -> None:
-    s = [[str(e) for e in row] for row in matrix]
+def pprintMatrix(matrix: List[List[Any]], spaces: int = 0, converter: Callable = str, returnAsString: bool = False) -> Union[None, str]:
+    s = [[converter(e) for e in row] for row in matrix]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
     table = [fmt.format(*row) for row in s]
-    print('\n'.join(table))
+    res = '\n'.join(table)
+    if returnAsString:
+        return res
+    print(res)
 
 def transposeMatrix(arr):
     if arr == []:
@@ -46,14 +50,14 @@ class v2:
         self.y = y
     
     def __add__(self, o):
-        if type(o) == int:
+        if type(o) in numeric:
             return v2(self.x + o, self.y + o)
         elif type(o) == type(self):
             return v2(self.x + o.x, self.y + o.y)
         raise TypeError()
     
     def __sub__(self, o):
-        if type(o) == int:
+        if type(o) in numeric:
             return v2(self.x - o, self.y - o)
         elif type(o) == type(self):
             return v2(self.x - o.x, self.y - o.y)
@@ -63,7 +67,7 @@ class v2:
         return v2(-self.x, -self.y)
     
     def __iadd__(self, o):
-        if type(o) == int:
+        if type(o) in numeric:
             self.x += o
             self.y += o
             return self
@@ -74,7 +78,7 @@ class v2:
         raise TypeError()
     
     def __isub__(self, o):
-        if type(o) == int:
+        if type(o) in numeric:
             self.x -= o
             self.y -= o
             return self
@@ -83,6 +87,21 @@ class v2:
             self.y -= o.y
             return self
         raise TypeError()
+    
+    def __mul__(self, o):
+        if type(o) in numeric:
+            return v2(self.x * o, self.y * o)
+        raise TypeError()
+    
+    def __imul__(self, o):
+        if type(o) in numeric:
+            self.x *= o
+            self.y *= o
+            return self
+        raise TypeError()
+    
+    def __abs__(self):
+        return (self.x * self.x + self.y * self.y) ** 0.5
     
     def __str__(self):
         return f"({self.x}, {self.y})"

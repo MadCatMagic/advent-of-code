@@ -1,209 +1,91 @@
 from v2 import *
-from traceback import format_exc
-from typing import Callable
+from testy import TestCase, run_tests
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+class V2Tests(TestCase):
+    def setup(self):
+        self.a = v2(1, 4)
+        self.b = v2(-3, 2)
+        self.c = v2(0.2, 0.3)
 
-# by convention, assumes in the formatting that the first value is the one being tested for most assertions, and the second value is the true value
-class TestCase:
+    def test_basics(self):
+        self.assert_equal(self.a + self.b, v2(-2, 6))
+        self.assert_equal(self.a + self.c, v2(1.2, 4.3))
+        self.assert_equal(self.a - self.b, v2(4, 2))
+        self.assert_equal(self.b - self.c, v2(-3.2, 1.7))
+        self.assert_equal(self.a + 2, v2(3, 6))
+        self.assert_equal(self.a - 2, v2(-1, 2))
+        self.assert_equal(-self.a, v2(-1, -4))
+        self.assert_equal(self.a * 2, v2(2, 8))
 
-    class outputElement:
-        def __init__(self, shouldHaveFailed: bool, success: bool, failureMessage: str = "", raisedError = False):
-            self.shouldHaveFailed = shouldHaveFailed
-            self.success = success
-            self.raisedError = raisedError
-            self.message = failureMessage
+        self.assert_expect_error(lambda: self.a * self.b, TypeError)
+        self.assert_expect_error(lambda: 1 * self.b, TypeError)
 
-        def __str__(self):
-            if self.success:
-                return (bcolors.FAIL if self.shouldHaveFailed else bcolors.OKGREEN) + "." + bcolors.ENDC
-            elif self.raisedError:
-                return bcolors.FAIL + "?" + bcolors.ENDC
-            else:
-                return (bcolors.OKGREEN if self.shouldHaveFailed else bcolors.FAIL) + "#" + bcolors.ENDC
-            
-    class indentElement:
-        def __init__(self, header = None):
-            self.header = header
+    def test_assignments(self):
+        a = self.a
+        a += self.b
+        self.assert_equal(a, v2(-2, 6))
+        a += 2.4
+        # float problems :(
+        self.assert_equal_approx(a, v2(0.4, 8.4))
+        b = self.b
+        b -= self.a
+        self.assert_equal(b, v2(-3.4, -6.4))
+        b -= -2
+        self.assert_equal(b, v2(-1.4, -4.4))
+        c = self.c
+        c *= 4
+        self.assert_equal(c, v2(0.8, 1.2))
+        def mulErr():
+            v = v2(4, 3)
+            v *= v2(1, 2)
+        self.assert_expect_error(mulErr, TypeError)
 
-        def __str__(self):
-            if self.header != None:
-                return f"{self.header}: "
-            return ""
-        
-    class endIndentation: pass
+    def test_specials(self):
+        self.assert_equal(str(self.a), "(1, 4)")
+        self.assert_equal(repr(self.a), "v2(1, 4)")
 
-    def __init__(self):
-        self._assertions = []
-        self._expectingFailures = 0
+        self.assert_equal(abs(v2(0, 0)), 0)
+        self.assert_equal(abs(v2(3, 4)), 5)
 
-    def expectFailure(self, num: int = 1):
-        self._expectingFailures += num
+class UtilityTests(TestCase):
+    def setup(self):
+        # abcd
+        # efgh
+        # ijkl
+        self.m1 = ["abcd", "efgh", "ijkl"]
+        self.m2 = [[1, 2], [3, 4], [5, 6]]
 
-    def assert_equal(self, a, b, message: str = "") -> bool:
-        if message == "":
-            message = f"assertion failed: {a!r} != {b!r}"
-        return self._assert(lambda: a == b, message)
-    
-    def assert_nequal(self, a, b, message: str = "") -> bool:
-        if message == "":
-            message = f"assertion failed: {a!r} == {b!r}"
-        return self._assert(lambda: a != b, message)
-    
-    # tests for an absolute or relative error of [tolerance]
-    def assert_equal_approx(self, a, b, tolerance = 1e-8, message: str = "") -> bool:
-        if message == "":
-            message = f"assertion failed: {a!r} !~= {b!r}"
-        return self._assert(lambda: abs(a - b) < tolerance or abs((a - b) / b) < tolerance, message)
-        
-    def assert_true(self, v, message: str = "") -> bool:
-        if message == "":
-            message = f"assertion failed: {v!r} is not True"
-        return self._assert(lambda: v == True, message)
-    
-    def assert_expect_error(self, func: Callable, exception: type = Exception, message: str = "") -> bool:
-        if message == "":
-            message = f"assertion failed: {func!r} did not raise the error {exception.__name__}"
-        def funct():
-            try:
-                func()
-            except Exception as e:
-                return type(e).__name__ == exception.__name__ or issubclass(type(e), exception)
-            return False
-        return self._assert(funct, message)
-    
-    # each individual call is counted as a 'test', but is within the test it is called from
-    def _assert(self, function, message):
-        expectFail = self._expectingFailures > 0
-        if expectFail:
-            self._expectingFailures -= 1
-        try:
-            assert function()
-            self._assertions.append(self.outputElement(expectFail, True))
-            return True
-        except AssertionError:
-            self._assertions.append(self.outputElement(expectFail, False, message))
-            return False
+    def test_pprintMatrix(self):
+        self.assert_equal(pprintMatrix(self.m1, returnAsString=True), "abcd\nefgh\nijkl")
+        self.assert_equal(pprintMatrix(self.m2, returnAsString=True), "12\n34\n56")
+        self.assert_equal(pprintMatrix(self.m2, 2, returnAsString=True), "1  2\n3  4\n5  6")
+        self.m2[0][0] = 23
+        self.assert_equal(pprintMatrix(self.m2, returnAsString=True), "232\n3 4\n5 6")
+        self.assert_equal(pprintMatrix(self.m2, 1, lambda x: str(x % 10), True), "3 2\n3 4\n5 6")
 
-    def _runTests(self):
-        a = dir(self)
+        self.assert_equal(pprintMatrix([], returnAsString=True), "")
+        self.assert_equal(pprintMatrix([[]], returnAsString=True), "")
 
-        s = None
-        if (a + ["setup"]).index("setup") != len(a):
-            try:
-                s = getattr(self, "setup")
-            except AttributeError:
-                pass
-            if not callable(s):
-                s = None
+    def test_transposeMatrix(self):
+        self.assert_equal(transposeMatrix(self.m1), ["aei", "bfj", "cgk", "dhl"])
+        self.assert_equal(transposeMatrix(transposeMatrix(self.m1)), self.m1)
+        self.assert_equal(transposeMatrix(self.m2), [[1, 3, 5], [2, 4, 6]])
+        self.assert_equal(transposeMatrix([]), [])
+        self.assert_equal(transposeMatrix([[]]), [[]])
 
-        for name in a:
-            if len(name) < 6 or name[:5] != "test_":
-                continue
+    def test_rotateMatrix(self):
+        self.assert_equal(rotateMatrixCCW(self.m1), ["dhl", "cgk", "bfj", "aei"])
+        self.assert_equal(rotateMatrixCW(self.m1), ["iea", "jfb", "kgc", "lhd"])
+        self.assert_equal(rotateMatrixCCW(self.m2), [[2, 4, 6], [1, 3, 5]])
+        self.assert_equal(rotateMatrixCW(self.m2), [[5, 3, 1], [6, 4, 2]])
 
-            if callable(getattr(self, name)):
-                self._assertions.append(self.indentElement(name[5:]))
-                try:
-                    if s != None:
-                        s()
-                    getattr(self, name)()
-                except:
-                    self._assertions.append(self.outputElement(False, False, f"Error while running test '{name[5:]}':\n{format_exc()[:-1]}", True))
-                self._assertions.append(self.endIndentation())
+        self.assert_equal(rotateMatrixCCW(rotateMatrixCW(self.m2)), self.m2)
+        self.assert_equal(rotateMatrixCW(rotateMatrixCCW(self.m1)), self.m1)
 
-    def __str__(self):
-        s = ""
-        indents = 1
-        successes = 0
-        failures = 0
-        deliberateFailures = 0
-        errors = 0
-        start = -1
-        for i, k in enumerate(self._assertions):
-            if type(k) == self.indentElement:
-                start = i
-                indents += 1
-                if str(k) != "":
-                    s += '  ' * (indents - 1) + str(k)
-            elif type(k) == self.endIndentation:
-                s += "\n"
-                for j in range(start + 1, i):
-                    if not self._assertions[j].success:
-                        if self._showDeliberateFailureAssertions and self._assertions[j].shouldHaveFailed or not self._assertions[j].shouldHaveFailed:
-                            s += f"{'  ' * indents}{self._assertions[j].message}\n"
-                indents -= 1
-            else:
-                s += f"{k!s}"
-                if k.success and not k.shouldHaveFailed: successes += 1
-                elif k.raisedError: errors += 1
-                elif not k.success and k.shouldHaveFailed: deliberateFailures += 1
-                else: failures += 1
-        s += f"\nSuccessful tests: {bcolors.OKGREEN}{successes + deliberateFailures}{bcolors.ENDC}\n"
-        if failures > 0: s += f"Failures: {bcolors.FAIL}{failures}{bcolors.ENDC}"
-        if deliberateFailures > 0: s += f" (deliberate failures: {bcolors.OKGREEN}{deliberateFailures}{bcolors.ENDC})"
-        if failures > 0 or deliberateFailures > 0: s += "\n"
-        if errors > 0: s += f"Errors: {bcolors.WARNING}{errors}{bcolors.ENDC}\n"
-        return s
-
-def run_tests(showDeliberateFailureAssertions: bool = False):
-    for name, el in globals().items():
-        if type(el) == type(TestCase) and el != TestCase and issubclass(el, TestCase):
-            print(f"Running tests for '{name}':")
-            obj = el()
-            obj._runTests()
-            obj._showDeliberateFailureAssertions = showDeliberateFailureAssertions
-            print(obj)
-
-class TestTests(TestCase):
-    def test_expect_to_pass(self):
-        # should all pass
-        self.assert_equal(1, 1)
-        self.assert_equal("abc", "a" + "b" + "c")
-        self.assert_equal([42, "er"], [42, "er"])
-        
-        self.assert_nequal(1, 5)
-        self.assert_nequal(True, False)
-        self.assert_nequal([], None)
-        
-        self.assert_true(True)
-        self.assert_true(4 < 76)
-
-        self.assert_equal_approx(100000, 100000.0003)
-        self.assert_equal_approx(100000.0003, 100000)
-        self.assert_equal_approx(0, 3e-10)
-
-        self.assert_expect_error(lambda: 1 / 0, ZeroDivisionError)
-        self.assert_expect_error(len)
-
-    def test_expect_to_fail(self):
-        self.expectFailure(13)
-        # should all fail
-        self.assert_equal(1, 2)
-        self.assert_equal(False, 1)
-        self.assert_equal([], ())
-
-        self.assert_nequal(1, 1.0)
-        self.assert_nequal((), ())
-        self.assert_nequal("abc", "abc")
-
-        self.assert_true(False)
-        self.assert_true("awiodj")
-        
-        self.assert_equal_approx(1000, 1000.001)
-        self.assert_equal_approx(5, 10)
-        self.assert_equal_approx(200, -200)
-
-        self.assert_expect_error(lambda: 1 + 1)
-        self.assert_expect_error(lambda: 1 / 0, IndexError)
+        self.assert_equal(rotateMatrixCCW([]), [])
+        self.assert_equal(rotateMatrixCW([]), [])
+        self.assert_equal(rotateMatrixCCW([[]]), [[]])
+        self.assert_equal(rotateMatrixCW([[]]), [[]])
 
 if __name__ == "__main__":
     run_tests()
