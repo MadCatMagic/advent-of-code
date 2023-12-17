@@ -43,7 +43,9 @@ def rotateMatrixCCW(arr):
     if type(arr[0]) == str:
         return ["".join(l) for l in k]
     return k
-    
+
+from functools import total_ordering
+@total_ordering
 class v2:
     def __init__(self, x = 0, y = 0):
         self.x = x
@@ -112,4 +114,12 @@ class v2:
     def __eq__(self, o):
         if type(self) == type(o):
             return o.x == self.x and o.y == self.y
+        return False
+    
+    def __hash__(self):
+        return hash(self.x) ^ (hash(self.y) << 4)
+    
+    def __lt__(self, o):
+        if type(self) == type(o):
+            return abs(self) < abs(o)
         return False
