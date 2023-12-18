@@ -1,49 +1,6 @@
 from typing import List, Any, Callable, Union
 numeric = (int, float)
 
-def pprintMatrix(matrix: List[List[Any]], spaces: int = 0, converter: Callable = str, returnAsString: bool = False) -> Union[None, str]:
-    s = [[converter(e) for e in row] for row in matrix]
-    lens = [max(map(len, col)) for col in zip(*s)]
-    fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
-    table = [fmt.format(*row) for row in s]
-    res = '\n'.join(table)
-    if returnAsString:
-        return res
-    print(res)
-
-def transposeMatrix(arr):
-    if arr == []:
-        return []
-    elif arr == [[]]:
-        return [[]]
-    k = [[] for _ in range(len(arr[0]))]
-    for l in arr:
-        for j, c in enumerate(l):
-            k[j].append(c)
-    if type(arr[0]) == str:
-        return ["".join(l) for l in k]
-    return k
-
-def rotateMatrixCW(arr):
-    if arr == []:
-        return []
-    elif arr == [[]]:
-        return [[]]
-    k = [[arr[-j-1][i] for j in range(len(arr))] for i in range(len(arr[0]))]
-    if type(arr[0]) == str:
-        return ["".join(l) for l in k]
-    return k
-
-def rotateMatrixCCW(arr):
-    if arr == []:
-        return []
-    elif arr == [[]]:
-        return [[]]
-    k = [[arr[j][-i-1] for j in range(len(arr))] for i in range(len(arr[0]))]
-    if type(arr[0]) == str:
-        return ["".join(l) for l in k]
-    return k
-
 from functools import total_ordering
 @total_ordering
 class v2:
@@ -123,3 +80,57 @@ class v2:
         if type(self) == type(o):
             return abs(self) < abs(o)
         return False
+    
+def pprintMatrix(matrix: List[List[Any]], spaces: int = 0, converter: Callable = str, returnAsString: bool = False) -> Union[None, str]:
+    s = [[converter(e) for e in row] for row in matrix]
+    lens = [max(map(len, col)) for col in zip(*s)]
+    fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
+    table = [fmt.format(*row) for row in s]
+    res = '\n'.join(table)
+    if returnAsString:
+        return res
+    print(res)
+
+def transposeMatrix(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[] for _ in range(len(arr[0]))]
+    for l in arr:
+        for j, c in enumerate(l):
+            k[j].append(c)
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
+
+def rotateMatrixCW(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[arr[-j-1][i] for j in range(len(arr))] for i in range(len(arr[0]))]
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
+
+def rotateMatrixCCW(arr):
+    if arr == []:
+        return []
+    elif arr == [[]]:
+        return [[]]
+    k = [[arr[j][-i-1] for j in range(len(arr))] for i in range(len(arr[0]))]
+    if type(arr[0]) == str:
+        return ["".join(l) for l in k]
+    return k
+
+# points[0] should equal points[-1]
+def polyAreaShoelace(points: list[v2]):
+    assert points[0] == points[-1], "points[0] should equal points[-1]"
+    v = sum(
+        (points[i].y + points[i + 1].y) * (points[i].x - points[i + 1].x) 
+        for i in range(len(points) - 1)
+    ) * 0.5
+    if int(v) == v:
+        return int(v)
+    return v

@@ -1,15 +1,4 @@
-from v2 import v2, pprintMatrix
-
-# points[0] should equal points[-1]
-def polyAreaShoelace(points: list[v2]):
-    assert points[0] == points[-1], "points[0] should equal points[-1]"
-    v = sum(
-        (points[i].y + points[i + 1].y) * (points[i].x - points[i + 1].x) 
-        for i in range(len(points) - 1)
-    ) * 0.5
-    if int(v) == v:
-        return int(v)
-    return v
+from v2 import v2, polyAreaShoelace
 
 def prepData(points, dirs):
     dic = {
@@ -20,8 +9,8 @@ def prepData(points, dirs):
         (v2(0, -1), v2(-1, 0)): v2(0, 1),
         (v2(0, 1), v2(1, 0)): v2(1, 0)
     }
-    for i in range(0, len(dirs)):
-        pair = tuple(dirs[i - 1:i + 1])
+    for i in range(len(points) - 1):
+        pair = (dirs[i - 1], dirs[i])
         if pair in dic:
             points[i] += dic[pair]
 
@@ -36,7 +25,6 @@ with open("2023/day18-input.txt", "r") as f:
     for i, (d, n, _) in enumerate(data):
         points.append(points[-1] + d * n)
         ds.append(d)
-    ds.append(data[0][0])
     prepData(points, ds)
     s1 = polyAreaShoelace(points)
 
@@ -80,12 +68,12 @@ with open("2023/day18-input.txt", "r") as f:
     # dear god
     data = [(int(c[1:-1], 16), dirs[{"0": "R", "1": "D", "2": "L", "3": "U"}[c[-1]]]) for _, _, c in data]
     points = [v2(0, 0)]
-    ds = [data[-1][1]]
+    ds = []
     for n, d in data:
         points.append(points[-1] + d * n)
         ds.append(d)
-    
     prepData(points, ds)
+    points[-1] = points[0]
     
     s2 = polyAreaShoelace(points)
 

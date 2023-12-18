@@ -87,5 +87,9 @@ class UtilityTests(TestCase):
         self.assert_equal(rotateMatrixCCW([[]]), [[]])
         self.assert_equal(rotateMatrixCW([[]]), [[]])
 
+    def test_polyAreaShoelace(self):
+        points = [v2(0, 0), v2(5, 0), v2(8, 2), v2(4, 3), v2(0, 0)]
+        self.assert_equal(polyAreaShoelace(points), 13)
+
 if __name__ == "__main__":
     run_tests()
