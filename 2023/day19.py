@@ -1,3 +1,5 @@
+from copy import deepcopy
+from math import prod
 
 with open("2023/day19-input.txt", "r") as f:
     data = f.read().split("\n\n")
@@ -11,11 +13,53 @@ with open("2023/day19-input.txt", "r") as f:
             self.success = None
             self.failure = None
 
-        def __call__(self, obj: dict[str, int]):
+        def __call__(self, obj: dict[str, int]) -> str:
             if self.cond != "":
                 if self.cond[1] == "<": return self.success(obj) if obj[self.cond[0]] < self.condv else self.failure(obj)
                 if self.cond[1] == ">": return self.success(obj) if obj[self.cond[0]] > self.condv else self.failure(obj)
             return self.success(obj)
+    
+        @staticmethod
+        def calcRangeValue(ranges: dict[str, tuple[int]]):
+            return prod(b - a + 1 for a, b in ranges.values())
+        
+        def summarize(self, ranges: dict[str, tuple[int]] = None) -> int:
+            # if this is just a success, do that
+            if self.cond == "":
+                if type(self.success) == type(self):
+                    return self.success.summarize(ranges)
+                else:
+                    return self.calcRangeValue(ranges) * (1 if self.success(0) == "A" else 0)
+
+            # test if ranges do not pass at all
+            lt = self.cond[1] == "<" and ranges[self.cond[0]][0] >= self.condv and ranges[self.cond[0]][1] >= self.condv
+            gt = self.cond[1] == ">" and ranges[self.cond[0]][0] <= self.condv and ranges[self.cond[0]][1] <= self.condv
+            if lt or gt:
+                if type(self.failure) == type(self):
+                    return self.failure.summarize(deepcopy(ranges))
+                return self.calcRangeValue(ranges) * (1 if self.failure(0) == "A" else 0)
+            
+            # at least some part of the range does pass so pass that which passes to success
+            # and that which does not to failure
+            ranges2 = deepcopy(ranges)
+            existing = ranges[self.cond[0]]
+            if self.cond[1] == "<":
+                ranges[self.cond[0]] = (existing[0], min(existing[1], self.condv - 1))
+                ranges2[self.cond[0]] = (ranges[self.cond[0]][1] + 1, existing[1])
+            elif self.cond[1] == ">":
+                ranges[self.cond[0]] = (max(existing[0], self.condv + 1), existing[1])
+                ranges2[self.cond[0]] = (existing[0], ranges[self.cond[0]][0] - 1)
+
+            s = 0
+            if type(self.success) == type(self):
+                s += self.success.summarize(ranges)
+            else:
+                s += self.calcRangeValue(ranges) * (1 if self.success(0) == "A" else 0)
+            if type(self.failure) == type(self):
+                s += self.failure.summarize(ranges2)
+            else:
+                s += self.calcRangeValue(ranges2) * (1 if self.failure(0) == "A" else 0)
+            return s
         
         @classmethod
         def createTree(cls, data: dict[str, list[str]], name: str = "in", index: int = 0):
@@ -48,7 +92,8 @@ with open("2023/day19-input.txt", "r") as f:
             s1 += sum(k.values())
 
     # part 2
+    s2 = root.summarize({"x": (1, 4000), "m": (1, 4000), "a": (1, 4000), "s": (1, 4000)})
     
-    print(s1)
+    print(s1, s2)
         
     
