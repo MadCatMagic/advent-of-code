@@ -1,4 +1,4 @@
-from typing import List, Any, Callable, Union
+from typing import List, TypeVar, Callable, Any
 numeric = (int, float)
 
 from functools import total_ordering
@@ -80,8 +80,9 @@ class v2:
         if type(self) == type(o):
             return abs(self) < abs(o)
         return False
-    
-def pprintMatrix(matrix: List[List[Any]], spaces: int = 0, converter: Callable = str, returnAsString: bool = False) -> Union[None, str]:
+
+T = TypeVar('T')
+def pprintMatrix(matrix: List[List[T]], spaces: int = 0, converter: Callable[[T], str] = str, returnAsString: bool = False) -> None | str:
     s = [[converter(e) for e in row] for row in matrix]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = (" " * spaces).join('{{:{}}}'.format(x) for x in lens)
@@ -90,6 +91,13 @@ def pprintMatrix(matrix: List[List[Any]], spaces: int = 0, converter: Callable =
     if returnAsString:
         return res
     print(res)
+
+K = TypeVar('K')
+def reverseLookup(d: dict[K: T], v: T) -> K:
+    for k in d:
+        if d[k] == v:
+            return k
+    raise LookupError()
 
 def transposeMatrix(arr):
     if arr == []:

@@ -47,7 +47,7 @@ class V2Tests(TestCase):
         self.assert_equal(abs(v2(0, 0)), 0)
         self.assert_equal(abs(v2(3, 4)), 5)
 
-class UtilityTests(TestCase):
+class UtilityTestsMatrices(TestCase):
     def setup(self):
         # abcd
         # efgh
@@ -87,9 +87,16 @@ class UtilityTests(TestCase):
         self.assert_equal(rotateMatrixCCW([[]]), [[]])
         self.assert_equal(rotateMatrixCW([[]]), [[]])
 
+class UtilityTestsGeneral(TestCase):
     def test_polyAreaShoelace(self):
         points = [v2(0, 0), v2(5, 0), v2(8, 2), v2(4, 3), v2(0, 0)]
         self.assert_equal(polyAreaShoelace(points), 13)
+
+    def test_reverseLookup(self):
+        d = {2: "2", 4: "4", 5: "5"}
+        self.assert_equal(reverseLookup(d, "2"), 2)
+        self.assert_equal(reverseLookup(d, "5"), 5)
+        self.assert_expect_error(lambda: reverseLookup(d, "6"), LookupError)
 
 if __name__ == "__main__":
     run_tests()

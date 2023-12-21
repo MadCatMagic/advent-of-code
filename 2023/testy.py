@@ -79,6 +79,8 @@ class TestCase:
         def funct(m: mesType) -> bool:
             try:
                 func()
+            except exception as e:
+                return True
             except Exception as e:
                 if m.m == "":
                     m.m = f"assertion failed: {func!r} did not raise the error {exception.__name__}, raised {type(e).__name__} instead:\n{bcolors.WARNING}{e}{bcolors.ENDC}"
@@ -189,6 +191,7 @@ if __name__ == "__main__":
 
             self.assert_expect_error(lambda: 1 / 0, ZeroDivisionError)
             self.assert_expect_error(len)
+            self.assert_expect_error(lambda: [1, 2][3], IndexError)
 
         def test_expect_to_fail(self):
             self.expectFailure(13)
