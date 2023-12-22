@@ -160,7 +160,7 @@ class v3:
         return False
     
     def __hash__(self):
-        return hash(self.x) ^ (hash(self.y) << 4) ^ (hash(self.z) << 8)
+        return (hash(self.x) ^ (hash(self.y) << 8) ^ 185423879) ^ (hash(self.z) << 16)
     
     def __lt__(self, o):
         if type(self) == type(o):
