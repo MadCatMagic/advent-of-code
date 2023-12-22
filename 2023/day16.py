@@ -1,4 +1,4 @@
-from v2 import v2, pprintMatrix
+from vec import v2
 
 dirs = {
     0: v2(1, 0),

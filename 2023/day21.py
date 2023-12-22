@@ -1,4 +1,5 @@
-from v2 import v2, pprintMatrix, reverseLookup
+from vec import v2
+from util import reverseLookup
 from numpy import polyfit, polyval
 import heapq
 

@@ -1,4 +1,4 @@
-from v2 import v2, pprintMatrix
+from vec import v2
 
 pairs = {
     "|": (v2(0, 1), v2(0, -1)),

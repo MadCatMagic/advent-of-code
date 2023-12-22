@@ -1,5 +1,5 @@
 
-from v2 import pprintMatrix, rotateMatrixCW, rotateMatrixCCW
+from util import rotateMatrixCW, rotateMatrixCCW
 
 def tiltLeft(data: list[list[str]]):
     n = []

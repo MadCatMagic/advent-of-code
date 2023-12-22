@@ -1,4 +1,5 @@
-from v2 import v2, pprintMatrix
+from vec import v2
+from util import pprintMatrix
 from itertools import combinations
 from copy import deepcopy
 

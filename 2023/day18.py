@@ -1,4 +1,5 @@
-from v2 import v2, polyAreaShoelace
+from vec import v2
+from util import polyAreaShoelace
 
 def prepData(points, dirs):
     dic = {
@@ -28,44 +29,7 @@ with open("2023/day18-input.txt", "r") as f:
     prepData(points, ds)
     s1 = polyAreaShoelace(points)
 
-    """
-    # find bounds
-    pos = v2()
-    minimum, maximum = v2(), v2()
-    for d, n, _ in data:
-        pos += d * n
-        minimum = v2(min(minimum.x, pos.x), min(minimum.y, pos.y))
-        maximum = v2(max(maximum.x, pos.x), max(maximum.y, pos.y))
-    size = maximum - minimum + 1
-    pos = -minimum
-    # fill out edges
-    arr = [["." for x in range(size.x)] for y in range(size.y)]
-    nums = [[-1 for _ in range(size.x)] for _ in range(size.y)]
-    arr[pos.y][pos.x] = "#"
-    nums[pos.y][pos.x] = 1
-    j = 2
-    for d, n, _ in data:
-        for i in range(n):
-            pos += d
-            arr[pos.y][pos.x] = "#"
-            nums[pos.y][pos.x] = j
-            j += 1
-    # fill in centre
-    for y, r in enumerate(arr):
-        if y == 0:
-            continue
-        inside = False
-        for x, c in enumerate(r):
-            if nums[y][x] != -1 and abs(nums[y][x] - nums[y - 1][x]) == 1:
-                inside = not inside
-            if inside:
-                arr[y][x] = "#"
-    # count hashtags
-    s1 = sum(r.count("#") for r in arr)
-    """
-
     # part 2
-    # dear god
     data = [(int(c[1:-1], 16), dirs[{"0": "R", "1": "D", "2": "L", "3": "U"}[c[-1]]]) for _, _, c in data]
     points = [v2(0, 0)]
     ds = []
