@@ -29,9 +29,9 @@ class V2Tests(TestCase):
         self.assert_equal_approx(a, v2(0.4, 8.4))
         b = self.b
         b -= self.a
-        self.assert_equal(b, v2(-3.4, -6.4))
+        self.assert_equal(b, v2(-4, -2))
         b -= -2
-        self.assert_equal(b, v2(-1.4, -4.4))
+        self.assert_equal(b, v2(-2, 0))
         c = self.c
         c *= 4
         self.assert_equal(c, v2(0.8, 1.2))

@@ -28,24 +28,16 @@ class v2:
     
     def __iadd__(self, o):
         if type(o) in numeric:
-            self.x += o
-            self.y += o
-            return self
+            return v2(self.x + o, self.y + o)
         elif type(o) == type(self):
-            self.x += o.x
-            self.y += o.y
-            return self
+            return v2(self.x + o.x, self.y + o.y)
         raise TypeError()
     
     def __isub__(self, o):
         if type(o) in numeric:
-            self.x -= o
-            self.y -= o
-            return self
+            return v2(self.x - o, self.y - o)
         elif type(o) == type(self):
-            self.x -= o.x
-            self.y -= o.y
-            return self
+            return v2(self.x - o.x, self.y - o.y)
         raise TypeError()
     
     def __mul__(self, o):
@@ -55,9 +47,7 @@ class v2:
     
     def __imul__(self, o):
         if type(o) in numeric:
-            self.x *= o
-            self.y *= o
-            return self
+            return v2(self.x * o, self.y * o)
         raise TypeError()
     
     def __abs__(self):
@@ -75,7 +65,7 @@ class v2:
         return False
     
     def __hash__(self):
-        return hash(self.x) ^ (hash(self.y) << 4)
+        return hash(self.x ^ 1589432787438) ^ (hash(self.y) << 8)
     
     def __lt__(self, o):
         if type(self) == type(o):
