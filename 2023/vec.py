@@ -4,6 +4,7 @@ from functools import total_ordering
 # vector2 class
 @total_ordering
 class v2:
+    __slots__ = "x", "y"
     def __init__(self, x = 0, y = 0):
         self.x = x
         self.y = y
@@ -84,6 +85,7 @@ class v2:
 # vector3 class
 @total_ordering
 class v3:
+    __slots__ = "x", "y", "z"
     def __init__(self, x = 0, y = 0, z = 0):
         self.x = x
         self.y = y
