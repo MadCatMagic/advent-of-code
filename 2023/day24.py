@@ -8,6 +8,7 @@ def testIntersectXY(p1: v3, d1: v3, p2: v3, d2: v3) -> bool:
     if m1 == m2:
         return False
     # considers both y=mx+c representations of lines and parametric representations
+    # probably overkill lol
     x = (p1.x * m1 - p2.x * m2 + p2.y - p1.y) / (m1 - m2)
     t1, t2 = (x - p1.x) / d1.x, (x - p2.x) / d2.x
     y = t1 * d1.y + p1.y # = t2 / d2.y
